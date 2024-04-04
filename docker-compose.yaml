@@ -1,0 +1,35 @@
+version: '3'
+
+#add service build to container with docker compose
+services:
+  myapp:
+    image: myapp
+    hostname: myapp
+    build:
+      context: .
+      dockerfile: ./my-project/Dockerfile
+    restart: always
+    ports:
+    - 5173:5173
+    environment:
+      NODE_ENV: production
+    volumes:
+      - ./my-project/src:/app/src
+    
+#this nginx reverse proxy and config load balancer
+  nginx:
+    image: nginx:latest
+    ports:
+      - 80:80
+      - 443:443
+    # restart: always
+    volumes:
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./nginx/certs:/etc/nginx/ssl
+  ubuntu:
+    image: ubuntu:latest
+    command: tail -f /dev/null
+      
+networks:
+   mynetwork:
+     driver: bridge
